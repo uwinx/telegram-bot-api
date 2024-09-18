@@ -34,7 +34,11 @@ void HttpConnection::handle(td::unique_ptr<td::HttpQuery> http_query,
     return send_http_error(404, "Not Found");
   }
 
-  auto token = url_path_parser.read_till('/');
+  auto token = http_query->get_header("x-telegram-bot-api-token");
+  if (token.empty() || url_path_parser.peek_char() != '/') {
+    token = url_path_parser.read_till('/');
+  }
+
   bool is_test_dc = false;
   if (url_path_parser.try_skip("/test")) {
     is_test_dc = true;
